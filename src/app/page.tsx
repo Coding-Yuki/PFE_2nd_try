@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Send } from 'lucide-react';
+import { Heart, MessageCircle, Send, Share2 } from 'lucide-react';
 
 interface Post {
   id: number;
@@ -13,6 +13,7 @@ interface Post {
     email: string;
     major: string;
     studentId: string;
+    avatarUrl?: string;
   };
   likes: { userId: number }[];
   comments: { id: number }[];
@@ -106,13 +107,12 @@ export default function Home() {
             return {
               ...post,
               likes: liked 
-                ? [...post.likes, { userId: 0 }] // Will be updated on refresh
+                ? [...post.likes, { userId: 0 }] 
                 : post.likes.filter(like => like.userId !== 0)
             };
           }
           return post;
         }));
-        await fetchPosts(); // Refresh to get accurate data
       }
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -146,7 +146,7 @@ export default function Home() {
     const shouldShow = !showComments[postId];
     setShowComments(prev => ({ ...prev, [postId]: shouldShow }));
     
-    if (shouldShow && !comments[postId]) {
+    if (shouldShow) {
       await fetchComments(postId);
     }
   };
@@ -160,146 +160,164 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Accueil</h1>
-      </div>
-
-      {/* Posting Box */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex space-x-3">
-          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold">M</span>
+    <div className="space-y-6 max-w-3xl mx-auto">
+      {/* POST CREATION CARD */}
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div className="flex space-x-4">
+          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+            <img 
+              src="https://api.dicebear.com/7.x/initials/svg?seed=CurrentUser"
+              alt="Current User"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1">
             <textarea
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
-              placeholder="Quoi de neuf ?"
-              className="w-full p-3 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              placeholder="Partagez vos pensées..."
+              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all"
               rows={3}
               disabled={isPosting}
             />
-            <div className="mt-3 flex justify-end">
+            <div className="mt-4 flex justify-between items-center">
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <span>{newPostContent.length}/500</span>
+              </div>
               <button
                 onClick={handlePost}
                 disabled={!newPostContent.trim() || isPosting}
-                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full font-semibold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center space-x-2"
               >
-                {isPosting ? 'Publication...' : 'Publier'}
+                {isPosting ? <span>Publication...</span> : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    <span>Publier</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Posts List */}
-      <div className="space-y-4">
+      {/* POSTS LIST */}
+      <div className="space-y-6">
         {isLoading ? (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <p className="text-gray-500">Chargement...</p>
+          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-4 text-gray-500">Chargement du fil d'actualité...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <p className="text-gray-500">Aucune publication pour le moment. Soyez le premier à partager quelque chose !</p>
+          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
+            <p className="text-xl font-medium text-gray-900 mb-2">C'est bien vide ici !</p>
+            <p className="text-gray-500">Soyez le premier à publier quelque chose.</p>
           </div>
         ) : (
-          posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-              {/* Post Header */}
-              <div className="flex items-start space-x-3">
-                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold">
-                    {post.author.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex items-center space-x-1">
-                    <h3 className="font-semibold text-gray-900 hover:underline cursor-pointer">
-                      {post.author.name}
-                    </h3>
-                    <span className="text-gray-500">·</span>
-                    <span className="text-sm text-gray-500">{post.author.major}</span>
-                    <span className="text-gray-500">·</span>
-                    <span className="text-sm text-gray-500">{formatDate(post.createdAt)}</span>
+          posts.map(post => (
+            <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+              
+              {/* POST HEADER */}
+              <div className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                    <img 
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(post.author.name)}`}
+                      alt={post.author.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-
-                  {/* Post Content */}
-                  <p className="text-gray-900 mt-2 whitespace-pre-wrap">{post.content}</p>
-
-                  {/* Post Actions */}
-                  <div className="flex items-center space-x-6 mt-4">
-                    <button
-                      onClick={() => handleLike(post.id)}
-                      className="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors group"
-                    >
-                      <Heart className={`h-5 w-5 group-hover:fill-red-500 ${post.likes.length > 0 ? 'fill-red-500 text-red-500' : ''}`} />
-                      <span className="text-sm">{post.likes.length}</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => toggleComments(post.id)}
-                      className="flex items-center space-x-2 text-gray-600 hover:text-blue-500 transition-colors group"
-                    >
-                      <MessageCircle className="h-5 w-5 group-hover:fill-blue-500" />
-                      <span className="text-sm">{post.comments.length}</span>
-                    </button>
-                  </div>
-
-                  {/* Comments Section */}
-                  {showComments[post.id] && (
-                    <div className="mt-4 border-t border-gray-200 pt-4">
-                      {/* Add Comment */}
-                      <div className="flex space-x-3 mb-4">
-                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-white font-bold text-sm">M</span>
-                        </div>
-                        <div className="flex-1 flex space-x-2">
-                          <input
-                            type="text"
-                            value={commentInputs[post.id] || ''}
-                            onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            placeholder="Ajoutez un commentaire..."
-                            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
-                                handleComment(post.id);
-                              }
-                            }}
-                          />
-                          <button
-                            onClick={() => handleComment(post.id)}
-                            className="p-2 text-blue-600 hover:text-blue-700 transition-colors"
-                          >
-                            <Send className="h-5 w-5" />
-                          </button>
-                        </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-bold text-gray-900 text-lg hover:text-indigo-600 cursor-pointer transition-colors">
+                          {post.author.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">{post.author.major}</p>
                       </div>
-
-                      {/* Comments List */}
-                      {comments[post.id]?.map((comment) => (
-                        <div key={comment.id} className="flex space-x-3 mb-3">
-                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-bold text-sm">
-                              {comment.user.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-1">
-                              <span className="font-medium text-sm">{comment.user.name}</span>
-                              <span className="text-xs text-gray-500">{comment.user.major}</span>
-                              <span className="text-xs text-gray-400">· {formatDate(comment.createdAt)}</span>
-                            </div>
-                            <p className="text-sm text-gray-700 mt-1">{comment.content}</p>
-                          </div>
-                        </div>
-                      ))}
+                      <span className="text-xs text-gray-400">{formatDate(post.createdAt)}</span>
                     </div>
-                  )}
+                  </div>
+                </div>
+
+                {/* POST CONTENT */}
+                <div className="mt-4">
+                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-[15px]">{post.content}</p>
                 </div>
               </div>
+
+              {/* ACTION BUTTONS */}
+              <div className="px-6 py-3 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+                <div className="flex space-x-6">
+                  <button
+                    onClick={() => handleLike(post.id)}
+                    className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors group"
+                  >
+                    <Heart className={`h-5 w-5 ${post.likes.length > 0 ? 'fill-red-500 text-red-500' : 'group-hover:fill-red-500'}`} />
+                    <span className="text-sm font-medium">{post.likes.length}</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => toggleComments(post.id)}
+                    className="flex items-center space-x-2 text-gray-500 hover:text-indigo-600 transition-colors group"
+                  >
+                    <MessageCircle className="h-5 w-5 group-hover:fill-indigo-100" />
+                    <span className="text-sm font-medium">{post.comments?.length || 0}</span>
+                  </button>
+                  
+                  <button className="flex items-center space-x-2 text-gray-500 hover:text-green-600 transition-colors">
+                    <Share2 className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* COMMENT SECTION */}
+              {showComments[post.id] && (
+                <div className="bg-gray-50 p-6 border-t border-gray-100">
+                  {/* Comment Input */}
+                  <div className="flex space-x-3 mb-6">
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                      <img 
+                         src="https://api.dicebear.com/7.x/initials/svg?seed=CurrentUser"
+                         className="w-full h-full object-cover"
+                         alt="Me"
+                      />
+                    </div>
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={commentInputs[post.id] || ''}
+                        onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        onKeyDown={(e) => e.key === 'Enter' && handleComment(post.id)}
+                        placeholder="Écrire un commentaire..."
+                        className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Comments List */}
+                  <div className="space-y-4">
+                    {comments[post.id]?.map(comment => (
+                      <div key={comment.id} className="flex space-x-3 group">
+                        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-white border border-gray-200">
+                          <img 
+                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(comment.user.name)}`}
+                            alt={comment.user.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-semibold text-sm text-gray-900">{comment.user.name}</span>
+                            <span className="text-xs text-gray-400">{formatDate(comment.createdAt)}</span>
+                          </div>
+                          <p className="text-gray-700 text-sm">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}

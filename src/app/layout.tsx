@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
+import RightPanel from "@/components/RightPanel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,15 +27,23 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-indigo-50`}
       >
-        <div className="max-w-7xl mx-auto flex gap-6 p-4">
-          <div className="w-64 flex-shrink-0">
+        <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 p-6 min-h-screen">
+          {/* Left: Sidebar Navigation */}
+          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg">
             <Sidebar />
           </div>
-          <main className="flex-grow max-w-2xl">
+          
+          {/* Center: Main Feed */}
+          <div className="col-span-6 bg-purple-50 p-4 rounded-lg">
             {children}
-          </main>
+          </div>
+          
+          {/* Right: Suggestions/Announcements Panel */}
+          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg">
+            <RightPanel />
+          </div>
         </div>
       </body>
     </html>
