@@ -1,8 +1,54 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { TrendingUp, Users, Calendar, Bell } from 'lucide-react';
 
+interface User {
+  id: number;
+  name: string;
+  major: string;
+  studentId: string;
+  avatarUrl?: string;
+}
+
 export default function RightPanel() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users');
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const getAvatarUrl = (user: User) => {
+    if (user.avatarUrl) {
+      return user.avatarUrl;
+    }
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}`;
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <div className="space-y-6">
       {/* Trending Topics */}
@@ -37,42 +83,35 @@ export default function RightPanel() {
           <h3 className="font-semibold text-gray-900">Suggestions</h3>
         </div>
         <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-              JD
+          {loading ? (
+            <div className="text-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="text-xs text-gray-500 mt-2">Chargement...</p>
             </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Jean Dupont</p>
-              <p className="text-sm text-gray-500">Informatique • 3ème année</p>
+          ) : users.length > 0 ? (
+            users.map((user) => (
+              <div key={user.id} className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                  <img 
+                    src={getAvatarUrl(user)}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">{user.name}</p>
+                  <p className="text-sm text-gray-500 truncate">{user.major}</p>
+                </div>
+                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors flex-shrink-0">
+                  Suivre
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">Aucune suggestion pour le moment</p>
             </div>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors">
-              Suivre
-            </button>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
-              MC
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Marie Curie</p>
-              <p className="text-sm text-gray-500">Physique • 2ème année</p>
-            </div>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors">
-              Suivre
-            </button>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-              PL
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-gray-900">Pierre Lavoisier</p>
-              <p className="text-sm text-gray-500">Chimie • 1ère année</p>
-            </div>
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors">
-              Suivre
-            </button>
-          </div>
+          )}
         </div>
       </div>
 
@@ -116,7 +155,7 @@ export default function RightPanel() {
               !
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Nouveau message de JD</p>
+              <p className="text-sm font-medium text-gray-900">Nouveau message</p>
               <p className="text-xs text-gray-500">Il y a 2 minutes</p>
             </div>
           </div>

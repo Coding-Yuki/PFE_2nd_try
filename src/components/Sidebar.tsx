@@ -24,7 +24,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-screen flex flex-col">
       {/* Logo */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-indigo-600">UniSocial</h1>
@@ -43,7 +43,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="space-y-2">
+      <nav className="space-y-2 flex-1">
         {navigation.map((item) => {
           const isActive = pathname === item.href || (item.name === 'Profil' && pathname.startsWith('/profile/'));
           return (
@@ -64,7 +64,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Notifications */}
-      <div className="mt-6">
+      <div className="mb-4">
         <button className="relative p-3 text-gray-600 hover:bg-indigo-100 rounded-full transition-colors">
           <Bell className="h-5 w-5" />
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -72,7 +72,7 @@ export default function Sidebar() {
       </div>
 
       {/* Logout */}
-      <div className="absolute bottom-6 left-6 right-6">
+      <div className="mt-auto">
         <button
           onClick={handleLogout}
           className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 bg-white hover:bg-red-50 rounded-full transition-colors"

@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 p-6 min-h-screen">
           {/* Left: Sidebar Navigation */}
-          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg">
+          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg relative">
             <Sidebar />
           </div>
           
