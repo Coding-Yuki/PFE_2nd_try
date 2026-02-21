@@ -61,16 +61,19 @@ export default function Home() {
   };
 
   const fetchComments = async (postId: number) => {
-    try {
-      const response = await fetch(`/api/posts/${postId}/comments`);
-      if (response.ok) {
-        const data = await response.json();
-        setComments(prev => ({ ...prev, [postId]: data }));
-      }
-    } catch (error) {
-      console.error('Error fetching comments:', error);
+  try {
+    const response = await fetch(`/api/posts/${postId}/comments`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Fetched comments for post ${postId}:`, data); // DEBUG LOG
+      setComments(prev => ({ ...prev, [postId]: data }));
+    } else {
+      console.error("Failed to fetch comments");
     }
-  };
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+  }
+};
 
   const fetchCurrentUser = async () => {
     try {
@@ -157,8 +160,8 @@ export default function Home() {
 
       if (response.ok) {
         setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+        setShowComments(prev => ({ ...prev, [postId]: true }));
         await fetchComments(postId);
-        await fetchPosts();
       }
     } catch (error) {
       console.error('Error creating comment:', error);
@@ -169,7 +172,7 @@ export default function Home() {
     const shouldShow = !showComments[postId];
     setShowComments(prev => ({ ...prev, [postId]: shouldShow }));
     
-    if (shouldShow) {
+    if (shouldShow && !comments[postId]) {
       await fetchComments(postId);
     }
   };
@@ -317,25 +320,31 @@ export default function Home() {
                   </div>
 
                   {/* Comments List */}
-                  <div className="space-y-4">
-                    {comments[post.id]?.map(comment => (
-                      <div key={comment.id} className="flex space-x-3 group">
-                        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-white border border-gray-200">
-                          <img 
-                            src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(comment.user.name)}`}
-                            alt={comment.user.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-semibold text-sm text-gray-900">{comment.user.name}</span>
-                            <span className="text-xs text-gray-400">{formatDate(comment.createdAt)}</span>
+                  <div className="space-y-4 mt-6">
+                    {comments[post.id]?.length > 0 ? (
+                      comments[post.id].map(comment => (
+                        <div key={comment.id} className="flex space-x-3">
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                            <img 
+                              src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(comment.user?.name || 'User')}`}
+                              alt={comment.user?.name || 'User'}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
-                          <p className="text-gray-700 text-sm">{comment.content}</p>
+                          <div className="flex-1 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-semibold text-sm text-gray-900">{comment.user?.name || 'Utilisateur inconnu'}</span>
+                              <span className="text-xs text-gray-400">
+                                {new Date(comment.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <p className="text-gray-700 text-sm">{comment.content}</p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center mt-4">Aucun commentaire pour le moment.</p>
+                    )}
                   </div>
                 </div>
               )}

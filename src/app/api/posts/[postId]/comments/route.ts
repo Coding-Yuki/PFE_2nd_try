@@ -41,35 +41,31 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { postId: string } }) {
+export async function GET(request: Request, context: { params: { postId: string } }) {
   try {
-    const postId = parseInt(params.postId);
+    // Await params if Next.js 15 requires it, otherwise just use context.params
+    const params = await context.params; 
+    const rawPostId = params.postId;
+    
+    // Schema shows Post.id is Int, so use parseInt
+    const queryId = parseInt(rawPostId, 10);
 
-    if (isNaN(postId)) {
-      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
-    }
+    console.log("=== DEBUG API ===");
+    console.log("Raw Post ID:", rawPostId);
+    console.log("Query ID Type:", typeof queryId);
+    console.log("Query ID Value:", queryId);
 
     const comments = await prisma.comment.findMany({
-      where: {
-        postId: postId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            major: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
+      where: { postId: queryId },
+      include: { user: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'asc' }
     });
 
+    console.log("Comments found:", comments.length);
+    console.log("Comments data:", comments);
     return NextResponse.json(comments);
   } catch (error) {
-    console.error('Comments fetch error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("API Error:", error);
+    return NextResponse.json([]);
   }
 }
