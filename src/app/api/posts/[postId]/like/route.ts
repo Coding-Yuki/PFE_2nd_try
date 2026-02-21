@@ -17,34 +17,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
     }
 
+    const postIdNum = parseInt(postId);
+    const userId = session.id;
+
     // Check if like already exists
     const existingLike = await prisma.like.findUnique({
       where: {
         userId_postId: {
-          userId: session.id,
-          postId: parseInt(postId),
+          userId,
+          postId: postIdNum,
         },
       },
     });
 
+    let liked: boolean;
+    let count: number;
+
     if (existingLike) {
-      // Unlike the post
+      // Unlike post
       await prisma.like.delete({
         where: {
-          id: existingLike.id,
+          userId_postId: {
+            userId,
+            postId: postIdNum,
+          },
         },
       });
-      return NextResponse.json({ liked: false }, { status: 200 });
+      liked = false;
     } else {
-      // Like the post
+      // Like post
       await prisma.like.create({
         data: {
-          userId: session.id,
-          postId: parseInt(postId),
+          userId,
+          postId: postIdNum,
         },
       });
-      return NextResponse.json({ liked: true }, { status: 201 });
+      liked = true;
     }
+
+    // Get updated like count
+    const likeCount = await prisma.like.count({
+      where: {
+        postId: postIdNum,
+      },
+    });
+
+    return NextResponse.json({ liked, count: likeCount });
   } catch (error) {
     console.error('Like toggle error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

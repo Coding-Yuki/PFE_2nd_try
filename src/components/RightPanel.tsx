@@ -14,6 +14,7 @@ interface User {
 export default function RightPanel() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [followingStates, setFollowingStates] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -22,6 +23,13 @@ export default function RightPanel() {
         if (response.ok) {
           const data = await response.json();
           setUsers(data);
+          
+          // Initialize following states
+          const initialStates: { [key: number]: boolean } = {};
+          data.forEach((user: User) => {
+            initialStates[user.id] = false;
+          });
+          setFollowingStates(initialStates);
         }
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -32,6 +40,24 @@ export default function RightPanel() {
 
     fetchUsers();
   }, []);
+
+  const handleFollow = async (userId: number) => {
+    try {
+      const response = await fetch(`/api/users/${userId}/follow`, {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        const { following } = await response.json();
+        setFollowingStates(prev => ({
+          ...prev,
+          [userId]: following,
+        }));
+      }
+    } catch (error) {
+      console.error('Error following user:', error);
+    }
+  };
 
   const getAvatarUrl = (user: User) => {
     if (user.avatarUrl) {
@@ -102,8 +128,15 @@ export default function RightPanel() {
                   <p className="font-medium text-gray-900 truncate">{user.name}</p>
                   <p className="text-sm text-gray-500 truncate">{user.major}</p>
                 </div>
-                <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-full text-xs font-medium transition-colors flex-shrink-0">
-                  Suivre
+                <button 
+                  onClick={() => handleFollow(user.id)}
+                  className={`${
+                    followingStates[user.id] 
+                      ? 'bg-gray-500 hover:bg-gray-600' 
+                      : 'bg-indigo-600 hover:bg-indigo-700'
+                  } text-white px-3 py-1 rounded-full text-xs font-medium transition-colors flex-shrink-0`}
+                >
+                  {followingStates[user.id] ? 'Following' : 'Follow'}
                 </button>
               </div>
             ))

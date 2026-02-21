@@ -4,9 +4,32 @@ import { getSession } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get('q');
+
+    const whereClause = query ? {
+      OR: [
+        {
+          content: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          author: {
+            name: {
+              contains: query,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ],
+    } : {};
+
     const posts = await prisma.post.findMany({
+      where: whereClause,
       include: {
         author: {
           select: {

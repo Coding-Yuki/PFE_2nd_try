@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Send, Share2 } from 'lucide-react';
+import { Heart, MessageCircle, Send, Bookmark } from 'lucide-react';
 
 interface Post {
   id: number;
@@ -32,6 +32,7 @@ interface Comment {
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [newPostContent, setNewPostContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -42,7 +43,11 @@ export default function Home() {
   const fetchPosts = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/posts');
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = urlParams.get('q');
+      const searchUrl = query ? `/api/posts?q=${encodeURIComponent(query)}` : '/api/posts';
+      
+      const response = await fetch(searchUrl);
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
@@ -63,6 +68,18 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error fetching comments:', error);
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const user = await response.json();
+        setCurrentUserId(user.id);
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error);
     }
   };
 
@@ -91,6 +108,8 @@ export default function Home() {
   };
 
   const handleLike = async (postId: number) => {
+    if (!currentUserId) return;
+    
     try {
       const response = await fetch(`/api/posts/${postId}/like`, {
         method: 'POST',
@@ -101,14 +120,16 @@ export default function Home() {
       });
 
       if (response.ok) {
-        const { liked } = await response.json();
+        const { liked, count } = await response.json();
+        
+        // Optimistically update UI
         setPosts(prev => prev.map(post => {
           if (post.id === postId) {
             return {
               ...post,
               likes: liked 
-                ? [...post.likes, { userId: 0 }] 
-                : post.likes.filter(like => like.userId !== 0)
+                ? [...post.likes, { userId: currentUserId }] 
+                : post.likes.filter(like => like.userId !== currentUserId)
             };
           }
           return post;
@@ -152,6 +173,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    fetchCurrentUser();
     fetchPosts();
   }, []);
 
@@ -253,7 +275,7 @@ export default function Home() {
                     onClick={() => handleLike(post.id)}
                     className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors group"
                   >
-                    <Heart className={`h-5 w-5 ${post.likes.length > 0 ? 'fill-red-500 text-red-500' : 'group-hover:fill-red-500'}`} />
+                    <Heart className={`h-5 w-5 ${post.likes.some(like => like.userId === currentUserId) ? 'fill-red-500 text-red-500' : 'group-hover:fill-red-500'}`} />
                     <span className="text-sm font-medium">{post.likes.length}</span>
                   </button>
                   
@@ -265,10 +287,7 @@ export default function Home() {
                     <span className="text-sm font-medium">{post.comments?.length || 0}</span>
                   </button>
                   
-                  <button className="flex items-center space-x-2 text-gray-500 hover:text-green-600 transition-colors">
-                    <Share2 className="h-5 w-5" />
-                  </button>
-                </div>
+                                  </div>
               </div>
 
               {/* COMMENT SECTION */}

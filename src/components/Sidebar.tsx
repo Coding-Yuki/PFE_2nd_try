@@ -23,6 +23,15 @@ export default function Sidebar() {
     }
   };
 
+  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const searchValue = (e.target as HTMLInputElement).value.trim();
+      if (searchValue) {
+        window.location.href = `/?q=${encodeURIComponent(searchValue)}`;
+      }
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* Logo */}
@@ -38,6 +47,7 @@ export default function Sidebar() {
             type="text"
             placeholder="Rechercher..."
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            onKeyDown={handleSearch}
           />
         </div>
       </div>
