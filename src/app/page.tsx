@@ -33,6 +33,7 @@ interface Comment {
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string>('');
   const [newPostContent, setNewPostContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -77,6 +78,7 @@ export default function Home() {
       if (response.ok) {
         const user = await response.json();
         setCurrentUserId(user.id);
+        setCurrentUserName(user.name);
       }
     } catch (error) {
       console.error('Error fetching current user:', error);
@@ -188,7 +190,7 @@ export default function Home() {
         <div className="flex space-x-4">
           <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
             <img 
-              src="https://api.dicebear.com/7.x/initials/svg?seed=CurrentUser"
+              src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUserName || 'User')}`}
               alt="Current User"
               className="w-full h-full object-cover"
             />
@@ -297,7 +299,7 @@ export default function Home() {
                   <div className="flex space-x-3 mb-6">
                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
                       <img 
-                         src="https://api.dicebear.com/7.x/initials/svg?seed=CurrentUser"
+                         src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUserName || 'User')}`}
                          className="w-full h-full object-cover"
                          alt="Me"
                       />
