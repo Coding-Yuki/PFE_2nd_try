@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, Users, Calendar, Bell } from 'lucide-react';
+import { Users, Bell } from 'lucide-react';
 
 interface User {
   id: number;
@@ -77,29 +77,25 @@ export default function RightPanel() {
 
   return (
     <div className="space-y-6">
-      {/* Trending Topics */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        <div className="flex items-center mb-4">
-          <TrendingUp className="h-5 w-5 text-indigo-600 mr-2" />
-          <h3 className="font-semibold text-gray-900">Sujets Tendances</h3>
-        </div>
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
-            <span className="text-sm text-gray-700">#Informatique</span>
-            <span className="text-xs text-gray-500">234 posts</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
-            <span className="text-sm text-gray-700">#Mathématiques</span>
-            <span className="text-xs text-gray-500">189 posts</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-pink-600 rounded-full"></div>
-            <span className="text-sm text-gray-700">#Marketing</span>
-            <span className="text-xs text-gray-500">156 posts</span>
-          </div>
-        </div>
+      {/* ABOUT WIDGET */}
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 mb-6">
+        <h3 className="font-bold text-gray-900 mb-4 flex items-center">
+          <span className="bg-indigo-100 p-2 rounded-lg mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </span>
+          À propos d'UniSocial
+        </h3>
+        <p className="text-gray-600 text-sm leading-relaxed mb-4">
+          Bienvenue sur le réseau social de votre université ! Connectez-vous avec vos camarades, partagez des idées et restez informé de la vie étudiante.
+        </p>
+        <button className="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Contacter l'administration
+        </button>
       </div>
 
       {/* Who to Follow */}
@@ -136,7 +132,7 @@ export default function RightPanel() {
                       : 'bg-indigo-600 hover:bg-indigo-700'
                   } text-white px-3 py-1 rounded-full text-xs font-medium transition-colors flex-shrink-0`}
                 >
-                  {followingStates[user.id] ? 'Following' : 'Follow'}
+                  {followingStates[user.id] ? 'Abonné' : 'Suivre'}
                 </button>
               </div>
             ))
@@ -145,31 +141,6 @@ export default function RightPanel() {
               <p className="text-sm text-gray-500">Aucune suggestion pour le moment</p>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Upcoming Events */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        <div className="flex items-center mb-4">
-          <Calendar className="h-5 w-5 text-indigo-600 mr-2" />
-          <h3 className="font-semibold text-gray-900">Événements</h3>
-        </div>
-        <div className="space-y-3">
-          <div className="border-l-4 border-indigo-600 pl-4">
-            <p className="font-medium text-gray-900">Forum Carrières</p>
-            <p className="text-sm text-gray-600">15 Mars 2024 • 14:00</p>
-            <p className="text-xs text-gray-500">Amphi A</p>
-          </div>
-          <div className="border-l-4 border-purple-600 pl-4">
-            <p className="font-medium text-gray-900">Tournoi de Code</p>
-            <p className="text-sm text-gray-600">18 Mars 2024 • 18:00</p>
-            <p className="text-xs text-gray-500">Labo Info</p>
-          </div>
-          <div className="border-l-4 border-pink-600 pl-4">
-            <p className="font-medium text-gray-900">Soirée Intégration</p>
-            <p className="text-sm text-gray-600">20 Mars 2024 • 19:00</p>
-            <p className="text-xs text-gray-500">Salle B200</p>
-          </div>
         </div>
       </div>
 

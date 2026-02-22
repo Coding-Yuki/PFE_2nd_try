@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  context: { params: { userId: string } }
 ) {
   try {
     const session = await getSession();
@@ -14,12 +14,25 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const followingId = parseInt(params.userId);
+    // Await params for Next.js 15
+    const params = await context.params;
+    const rawTargetUserId = params.userId;
+    
+    // Schema shows User.id is Int, so parse it
+    const followingId = parseInt(rawTargetUserId, 10);
     const followerId = session.id;
+
+    if (isNaN(followingId)) {
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    }
 
     if (followerId === followingId) {
       return NextResponse.json({ error: 'Cannot follow yourself' }, { status: 400 });
     }
+
+    console.log("=== FOLLOW API DEBUG ===");
+    console.log("Follower ID:", followerId);
+    console.log("Target User ID:", followingId);
 
     // Check if already following
     const existingFollow = await prisma.follow.findUnique({
@@ -44,6 +57,7 @@ export async function POST(
         },
       });
       following = false;
+      console.log("Unfollowed successfully");
     } else {
       // Follow
       await prisma.follow.create({
@@ -53,6 +67,7 @@ export async function POST(
         },
       });
       following = true;
+      console.log("Followed successfully");
     }
 
     return NextResponse.json({ following });
