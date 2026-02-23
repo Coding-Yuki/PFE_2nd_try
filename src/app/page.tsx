@@ -187,11 +187,11 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-8">
       {/* POST CREATION CARD */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-        <div className="flex space-x-4">
-          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+      <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300">
+        <div className="flex space-x-6">
+          <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
             <img 
               src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUserName || 'User')}`}
               alt="Current User"
@@ -202,19 +202,19 @@ export default function Home() {
             <textarea
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
-              placeholder="Partagez vos pensées..."
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 placeholder-gray-500 transition-all"
-              rows={3}
+              placeholder="Partagez vos pensées avec la communauté..."
+              className="w-full p-5 bg-gray-50/50 border-0 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all duration-200 text-gray-900 placeholder-gray-500 text-base leading-relaxed shadow-sm hover:shadow-md"
+              rows={4}
               disabled={isPosting}
             />
-            <div className="mt-4 flex justify-between items-center">
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <span>{newPostContent.length}/500</span>
+            <div className="mt-6 flex justify-between items-center">
+              <div className="flex items-center space-x-3 text-sm text-gray-500">
+                <span className="px-3 py-1 bg-gray-100 rounded-full font-medium">{newPostContent.length}/500</span>
               </div>
               <button
                 onClick={handlePost}
                 disabled={!newPostContent.trim() || isPosting}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center space-x-2"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white px-8 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
               >
                 {isPosting ? <span>Publication...</span> : (
                   <>
@@ -229,25 +229,30 @@ export default function Home() {
       </div>
 
       {/* POSTS LIST */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         {isLoading ? (
-          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-4 text-gray-500">Chargement du fil d'actualité...</p>
+          <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl p-16 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+            <p className="mt-6 text-gray-500 font-medium">Chargement du fil d'actualité...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-            <p className="text-xl font-medium text-gray-900 mb-2">C'est bien vide ici !</p>
+          <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl p-16 text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </div>
+            <p className="text-2xl font-bold text-gray-900 mb-3">C'est bien vide ici !</p>
             <p className="text-gray-500">Soyez le premier à publier quelque chose.</p>
           </div>
         ) : (
           posts.map(post => (
-            <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200 overflow-hidden">
+            <div key={post.id} className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden group">
               
               {/* POST HEADER */}
-              <div className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+              <div className="p-8">
+                <div className="flex items-start space-x-6">
+                  <div className="w-14 h-14 rounded-2xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-100 to-purple-100 shadow-lg">
                     <img 
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(post.author.name)}`}
                       alt={post.author.name}
@@ -257,50 +262,54 @@ export default function Home() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-bold text-gray-900 text-lg hover:text-indigo-600 cursor-pointer transition-colors">
+                        <h3 className="font-bold text-gray-900 text-xl hover:text-indigo-600 cursor-pointer transition-colors">
                           {post.author.name}
                         </h3>
-                        <p className="text-sm text-gray-500">{post.author.major}</p>
+                        <p className="text-sm text-gray-500 mt-1">{post.author.major}</p>
                       </div>
-                      <span className="text-xs text-gray-400">{formatDate(post.createdAt)}</span>
+                      <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{formatDate(post.createdAt)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* POST CONTENT */}
-                <div className="mt-4">
-                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-[15px]">{post.content}</p>
+                <div className="mt-6">
+                  <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">{post.content}</p>
                 </div>
               </div>
 
               {/* ACTION BUTTONS */}
-              <div className="px-6 py-3 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-                <div className="flex space-x-6">
+              <div className="px-8 py-4 bg-gradient-to-r from-gray-50 to-indigo-50/30 border-t border-gray-100 flex items-center justify-between">
+                <div className="flex space-x-8">
                   <button
                     onClick={() => handleLike(post.id)}
-                    className="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors group"
+                    className="flex items-center space-x-3 text-gray-500 hover:text-red-500 transition-all duration-200 group"
                   >
-                    <Heart className={`h-5 w-5 ${post.likes.some(like => like.userId === currentUserId) ? 'fill-red-500 text-red-500' : 'group-hover:fill-red-500'}`} />
-                    <span className="text-sm font-medium">{post.likes.length}</span>
+                    <div className="p-2 rounded-full group-hover:bg-red-50 transition-colors">
+                      <Heart className={`h-5 w-5 ${post.likes.some(like => like.userId === currentUserId) ? 'fill-red-500 text-red-500' : 'group-hover:fill-red-500'}`} />
+                    </div>
+                    <span className="text-sm font-semibold">{post.likes.length}</span>
                   </button>
                   
                   <button
                     onClick={() => toggleComments(post.id)}
-                    className="flex items-center space-x-2 text-gray-500 hover:text-indigo-600 transition-colors group"
+                    className="flex items-center space-x-3 text-gray-500 hover:text-indigo-600 transition-all duration-200 group"
                   >
-                    <MessageCircle className="h-5 w-5 group-hover:fill-indigo-100" />
-                    <span className="text-sm font-medium">{post.comments?.length || 0}</span>
+                    <div className="p-2 rounded-full group-hover:bg-indigo-50 transition-colors">
+                      <MessageCircle className="h-5 w-5 group-hover:fill-indigo-100" />
+                    </div>
+                    <span className="text-sm font-semibold">{post.comments?.length || 0}</span>
                   </button>
                   
-                                  </div>
+                </div>
               </div>
 
               {/* COMMENT SECTION */}
               {showComments[post.id] && (
-                <div className="bg-gray-50 p-6 border-t border-gray-100">
+                <div className="bg-gradient-to-br from-gray-50 to-indigo-50/20 p-8 border-t border-gray-100">
                   {/* Comment Input */}
-                  <div className="flex space-x-3 mb-6">
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                  <div className="flex space-x-4 mb-8">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-indigo-100 to-purple-100 shadow-md">
                       <img 
                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUserName || 'User')}`}
                          className="w-full h-full object-cover"
@@ -314,36 +323,41 @@ export default function Home() {
                         onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
                         onKeyDown={(e) => e.key === 'Enter' && handleComment(post.id)}
                         placeholder="Écrire un commentaire..."
-                        className="w-full px-4 py-2 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="w-full px-5 py-3 bg-white border-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm hover:shadow-md transition-all duration-200"
                       />
                     </div>
                   </div>
 
                   {/* Comments List */}
-                  <div className="space-y-4 mt-6">
+                  <div className="space-y-6">
                     {comments[post.id]?.length > 0 ? (
                       comments[post.id].map(comment => (
-                        <div key={comment.id} className="flex space-x-3">
-                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-gray-100">
+                        <div key={comment.id} className="flex space-x-4">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 shadow-md">
                             <img 
                               src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(comment.user?.name || 'User')}`}
                               alt={comment.user?.name || 'User'}
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <div className="flex-1 bg-white p-3 rounded-2xl border border-gray-100 shadow-sm">
-                            <div className="flex items-center justify-between mb-1">
+                          <div className="flex-1 bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200">
+                            <div className="flex items-center justify-between mb-2">
                               <span className="font-semibold text-sm text-gray-900">{comment.user?.name || 'Utilisateur inconnu'}</span>
-                              <span className="text-xs text-gray-400">
+                              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
                                 {new Date(comment.createdAt).toLocaleDateString()}
                               </span>
                             </div>
-                            <p className="text-gray-700 text-sm">{comment.content}</p>
+                            <p className="text-gray-700 text-sm leading-relaxed">{comment.content}</p>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 text-center mt-4">Aucun commentaire pour le moment.</p>
+                      <div className="text-center py-8">
+                        <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <MessageCircle className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <p className="text-sm text-gray-500 font-medium">Aucun commentaire pour le moment.</p>
+                      </div>
                     )}
                   </div>
                 </div>

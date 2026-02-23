@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
-import RightPanel from "@/components/RightPanel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,22 +26,23 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-indigo-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 p-6 min-h-screen">
-          {/* Left: Sidebar Navigation */}
-          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg relative">
-            <Sidebar />
-          </div>
-          
-          {/* Center: Main Feed */}
-          <div className="col-span-6 bg-purple-50 p-4 rounded-lg">
-            {children}
-          </div>
-          
-          {/* Right: Suggestions/Announcements Panel */}
-          <div className="col-span-3 bg-indigo-100 p-4 rounded-lg">
-            <RightPanel />
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
+          <div className="max-w-6xl mx-auto grid grid-cols-12 gap-8 p-8">
+            {/* Left: Sidebar Navigation */}
+            <div className="col-span-3">
+              <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-2xl shadow-xl p-6 sticky top-8">
+                <Sidebar />
+              </div>
+            </div>
+            
+            {/* Center: Main Feed */}
+            <div className="col-span-9">
+              <div className="max-w-4xl mx-auto">
+                {children}
+              </div>
+            </div>
           </div>
         </div>
       </body>
