@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: Request, context: { params: { postId: string } }) {
+export async function GET(request: NextRequest, context: { params: Promise<{ postId: string }> }) {
   try {
     // Await params if Next.js 15 requires it, otherwise just use context.params
     const params = await context.params; 

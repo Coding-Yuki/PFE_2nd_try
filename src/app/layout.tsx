@@ -2,6 +2,9 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { uploadRouter } from "@/lib/uploadthing/core";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NextSSRPlugin routerConfig={extractRouterConfig(uploadRouter)} />
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
           <div className="max-w-6xl mx-auto grid grid-cols-12 gap-8 p-8">
             {/* Left: Sidebar Navigation */}

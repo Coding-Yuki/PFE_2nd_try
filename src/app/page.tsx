@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { Heart, MessageCircle, Send, Bookmark } from 'lucide-react';
+import { UploadDropzone } from '@/lib/uploadthing';
+import type { OurFileRouter } from '@/lib/uploadthing/core';
 
 interface Post {
   id: number;
   content: string;
+  fileUrl: string | null;
   createdAt: string;
   author: {
     id: number;
@@ -35,6 +38,8 @@ export default function Home() {
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [currentUserName, setCurrentUserName] = useState<string>('');
   const [newPostContent, setNewPostContent] = useState('');
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [commentInputs, setCommentInputs] = useState<{ [key: number]: string }>({});
@@ -98,11 +103,15 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: newPostContent }),
+        body: JSON.stringify({ 
+          content: newPostContent,
+          fileUrl: fileUrl || null
+        }),
       });
 
       if (response.ok) {
         setNewPostContent('');
+        setFileUrl(null);
         await fetchPosts();
       }
     } catch (error) {
@@ -207,6 +216,45 @@ export default function Home() {
               rows={4}
               disabled={isPosting}
             />
+            
+            {/* FILE UPLOAD SECTION */}
+            <div className="mt-4">
+              <UploadDropzone
+                endpoint="postFile"
+                onClientUploadComplete={(res) => {
+                  setIsUploading(false);
+                  if (res && res[0]) {
+                    setFileUrl(res[0].url);
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  setIsUploading(false);
+                  console.error('Upload error:', error);
+                  alert(`Upload failed: ${error.message}`);
+                  setFileUrl(null);
+                }}
+                onUploadBegin={() => setIsUploading(true)}
+                config={{
+                  mode: "auto",
+                }}
+                className="ut-label:text-xs ut-label:text-gray-500 ut-button:bg-indigo-50 ut-button:text-indigo-600 ut-button:border-0 ut-button:rounded-xl ut-button:hover:bg-indigo-100 ut-allowed-content:text-xs ut-allowed-content:text-gray-400"
+              />
+              
+              {/* Show upload status */}
+              {isUploading && (
+                <div className="mt-2 text-sm text-indigo-600 font-medium animate-pulse">
+                  Uploading file...
+                </div>
+              )}
+              
+              {/* Show uploaded file info */}
+              {fileUrl && !isUploading && (
+                <div className="mt-2 text-sm text-green-600 font-medium">
+                  ✓ File uploaded successfully
+                </div>
+              )}
+            </div>
+            
             <div className="mt-6 flex justify-between items-center">
               <div className="flex items-center space-x-3 text-sm text-gray-500">
                 <span className="px-3 py-1 bg-gray-100 rounded-full font-medium">{newPostContent.length}/500</span>
@@ -275,6 +323,59 @@ export default function Home() {
                 {/* POST CONTENT */}
                 <div className="mt-6">
                   <p className="text-gray-800 leading-relaxed whitespace-pre-wrap text-base">{post.content}</p>
+                  
+                  {/* FILE DISPLAY */}
+                  {post.fileUrl && (
+                    <div className="mt-4">
+                      {post.fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                        <div className="relative group">
+                          <img 
+                            src={post.fileUrl} 
+                            alt="Post attachment" 
+                            className="w-full max-h-96 object-cover rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                            onClick={() => post.fileUrl && window.open(post.fileUrl, '_blank')}
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-2xl flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <div className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg">
+                                <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gradient-to-r from-gray-50 to-indigo-50 border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-all duration-300">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex-shrink-0">
+                              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {post.fileUrl.split('/').pop() || 'Document'}
+                              </p>
+                              <p className="text-xs text-gray-500">Click to view document</p>
+                            </div>
+                            <div className="flex-shrink-0">
+                              <a
+                                href={post.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors duration-200 shadow-md hover:shadow-lg"
+                              >
+                                Open
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

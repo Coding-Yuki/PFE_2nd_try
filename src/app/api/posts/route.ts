@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { content } = await request.json();
+    const { content, fileUrl } = await request.json();
     
     if (!content || content.trim() === '') {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
     const post = await prisma.post.create({
       data: {
         content: content.trim(),
+        fileUrl: fileUrl || null,
         authorId: session.id,
       },
       include: {
