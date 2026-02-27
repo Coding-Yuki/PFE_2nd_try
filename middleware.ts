@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getSession } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-  const session = await getSession();
+  // Check if session cookie exists (without database access)
+  const sessionCookie = request.cookies.get('session');
+  const hasSession = !!sessionCookie?.value;
 
   // If user is not logged in and trying to access protected routes
-  if (!session && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/register')) {
+  if (!hasSession && !request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/register')) {
     return NextResponse.redirect(new URL('/register', request.url));
   }
 
   // If user is logged in and trying to access auth pages
-  if (session && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {
+  if (hasSession && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
