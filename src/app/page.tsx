@@ -53,13 +53,20 @@ export default function Home() {
       const query = urlParams.get('q');
       const searchUrl = query ? `/api/posts?q=${encodeURIComponent(query)}` : '/api/posts';
       
+      console.log('[v0] Fetching posts from:', searchUrl);
       const response = await fetch(searchUrl);
+      console.log('[v0] Response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('[v0] Posts fetched:', data.length);
         setPosts(data);
+      } else {
+        const errorData = await response.json();
+        console.error('[v0] Error fetching posts:', response.status, errorData);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('[v0] Error fetching posts:', error);
     } finally {
       setIsLoading(false);
     }
@@ -82,14 +89,21 @@ export default function Home() {
 
   const fetchCurrentUser = async () => {
     try {
+      console.log('[v0] Fetching current user...');
       const response = await fetch('/api/auth/me');
+      console.log('[v0] Auth/me response status:', response.status);
+      
       if (response.ok) {
         const user = await response.json();
+        console.log('[v0] User fetched:', user.name);
         setCurrentUserId(user.id);
         setCurrentUserName(user.name);
+      } else {
+        const errorData = await response.json();
+        console.error('[v0] Error fetching current user:', response.status, errorData);
       }
     } catch (error) {
-      console.error('Error fetching current user:', error);
+      console.error('[v0] Error fetching current user:', error);
     }
   };
 

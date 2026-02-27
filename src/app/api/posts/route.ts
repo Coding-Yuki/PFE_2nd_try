@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('[v0] GET /api/posts called');
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
 
@@ -56,10 +57,11 @@ export async function GET(request: NextRequest) {
       },
     });
     
+    console.log('[v0] Successfully fetched posts:', posts.length);
     return NextResponse.json(posts);
   } catch (error) {
-    console.error('Error fetching posts:', error);
-    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+    console.error('[v0] Error fetching posts:', error);
+    return NextResponse.json({ error: 'Failed to fetch posts', details: String(error) }, { status: 500 });
   }
 }
 
